@@ -1,0 +1,42 @@
+services:
+  cockroachdb:
+    image: cockroachdb/cockroach:latest-v25.1
+    command: start-single-node --insecure --advertise-addr=cockroachdb
+    ports:
+      - "26257:26257"
+      - "8081:8080"
+    volumes:
+      - cockroach-data:/cockroach/cockroach-data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health?ready=1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  cockroach-init:
+    image: cockroachdb/cockroach:latest-v25.1
+    command: >
+      sh -c "/cockroach/cockroach sql --insecure --host=cockroachdb < /init.sql"
+    depends_on:
+      cockroachdb:
+        condition: service_healthy
+    volumes:
+      - ./deploy/init.sql:/init.sql:ro
+    restart: "no"
+
+  demo:
+    build:
+      context: .
+      dockerfile: ./deploy/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - DATABASE_URL=postgresql://root@cockroachdb:26257/defaultdb?sslmode=disable
+      - PORT=8080
+    depends_on:
+      cockroach-init:
+        condition: service_completed_successfully
+    restart: on-failure
+
+volumes:
+  cockroach-data:

@@ -1,0 +1,176 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" font-family="'Segoe UI', system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f172a"/>
+      <stop offset="100%" style="stop-color:#1e293b"/>
+    </linearGradient>
+    <linearGradient id="coreGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1"/>
+      <stop offset="100%" style="stop-color:#4f46e5"/>
+    </linearGradient>
+    <linearGradient id="adapterGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#06b6d4"/>
+      <stop offset="100%" style="stop-color:#0891b2"/>
+    </linearGradient>
+    <linearGradient id="testGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#f59e0b"/>
+      <stop offset="100%" style="stop-color:#d97706"/>
+    </linearGradient>
+    <linearGradient id="metricsGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981"/>
+      <stop offset="100%" style="stop-color:#059669"/>
+    </linearGradient>
+    <linearGradient id="aiGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#a855f7"/>
+      <stop offset="100%" style="stop-color:#7c3aed"/>
+    </linearGradient>
+    <linearGradient id="appGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#f43f5e"/>
+      <stop offset="100%" style="stop-color:#e11d48"/>
+    </linearGradient>
+    <linearGradient id="dbGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#22c55e"/>
+      <stop offset="100%" style="stop-color:#16a34a"/>
+    </linearGradient>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-opacity="0.3"/>
+    </filter>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="900" height="620" rx="12" fill="url(#bgGrad)"/>
+
+  <!-- Title -->
+  <text x="450" y="38" text-anchor="middle" fill="#f1f5f9" font-size="20" font-weight="700">cockroachdb-go-library Architecture</text>
+  <text x="450" y="58" text-anchor="middle" fill="#94a3b8" font-size="12">Core + Adapter Pattern | Driver-Agnostic | Composable</text>
+
+  <!-- YOUR APPLICATION layer -->
+  <rect x="30" y="75" width="840" height="50" rx="8" fill="url(#appGrad)" opacity="0.9" filter="url(#shadow)"/>
+  <text x="450" y="105" text-anchor="middle" fill="white" font-size="15" font-weight="600">Your Application</text>
+
+  <!-- Arrow down from app -->
+  <line x1="450" y1="125" x2="450" y2="145" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrowDown)"/>
+  <defs><marker id="arrowDown" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#94a3b8"/></marker></defs>
+
+  <!-- ADAPTERS ROW -->
+  <text x="44" y="162" fill="#94a3b8" font-size="11" font-weight="600" letter-spacing="1.5">ADAPTERS</text>
+
+  <!-- pgxadapter -->
+  <rect x="30" y="170" width="195" height="90" rx="8" fill="url(#adapterGrad)" filter="url(#shadow)"/>
+  <text x="127" y="195" text-anchor="middle" fill="white" font-size="14" font-weight="700">pgxadapter</text>
+  <text x="127" y="212" text-anchor="middle" fill="#cffafe" font-size="10">pgx/v5 driver</text>
+  <line x1="50" y1="220" x2="205" y2="220" stroke="#cffafe" stroke-opacity="0.3"/>
+  <text x="127" y="236" text-anchor="middle" fill="#e0f2fe" font-size="10">Pool | ExecuteTx</text>
+  <text x="127" y="250" text-anchor="middle" fill="#e0f2fe" font-size="10">FollowerRead | IsRetryable</text>
+
+  <!-- gormadapter -->
+  <rect x="240" y="170" width="195" height="90" rx="8" fill="url(#adapterGrad)" filter="url(#shadow)"/>
+  <text x="337" y="195" text-anchor="middle" fill="white" font-size="14" font-weight="700">gormadapter</text>
+  <text x="337" y="212" text-anchor="middle" fill="#cffafe" font-size="10">GORM plugin</text>
+  <line x1="260" y1="220" x2="415" y2="220" stroke="#cffafe" stroke-opacity="0.3"/>
+  <text x="337" y="236" text-anchor="middle" fill="#e0f2fe" font-size="10">Plugin | Scopes</text>
+  <text x="337" y="250" text-anchor="middle" fill="#e0f2fe" font-size="10">Callbacks | Retry</text>
+
+  <!-- sqlxadapter -->
+  <rect x="450" y="170" width="195" height="90" rx="8" fill="url(#adapterGrad)" filter="url(#shadow)"/>
+  <text x="547" y="195" text-anchor="middle" fill="white" font-size="14" font-weight="700">sqlxadapter</text>
+  <text x="547" y="212" text-anchor="middle" fill="#cffafe" font-size="10">sqlx wrapper</text>
+  <line x1="470" y1="220" x2="625" y2="220" stroke="#cffafe" stroke-opacity="0.3"/>
+  <text x="547" y="236" text-anchor="middle" fill="#e0f2fe" font-size="10">DB | ExecuteTx</text>
+  <text x="547" y="250" text-anchor="middle" fill="#e0f2fe" font-size="10">FollowerRead | Health</text>
+
+  <!-- AI package -->
+  <rect x="660" y="170" width="210" height="90" rx="8" fill="url(#aiGrad)" filter="url(#shadow)"/>
+  <text x="765" y="195" text-anchor="middle" fill="white" font-size="14" font-weight="700">ai</text>
+  <text x="765" y="212" text-anchor="middle" fill="#e9d5ff" font-size="10">Vector Search + RAG</text>
+  <line x1="680" y1="220" x2="850" y2="220" stroke="#e9d5ff" stroke-opacity="0.3"/>
+  <text x="765" y="236" text-anchor="middle" fill="#f3e8ff" font-size="10">VectorStore | RagChatClient</text>
+  <text x="765" y="250" text-anchor="middle" fill="#f3e8ff" font-size="10">Embeddings | C-SPANN</text>
+
+  <!-- Arrow down from adapters to core -->
+  <line x1="127" y1="260" x2="127" y2="290" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrowDown)"/>
+  <line x1="337" y1="260" x2="337" y2="290" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrowDown)"/>
+  <line x1="547" y1="260" x2="547" y2="290" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrowDown)"/>
+  <line x1="765" y1="260" x2="765" y2="290" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrowDown)"/>
+
+  <!-- CORE PACKAGE -->
+  <text x="44" y="305" fill="#94a3b8" font-size="11" font-weight="600" letter-spacing="1.5">CORE</text>
+  <rect x="30" y="312" width="840" height="120" rx="10" fill="url(#coreGrad)" filter="url(#shadow)"/>
+  <text x="450" y="338" text-anchor="middle" fill="white" font-size="16" font-weight="700">crdbgo</text>
+  <text x="450" y="355" text-anchor="middle" fill="#c7d2fe" font-size="11">Driver-agnostic core | Zero external dependencies</text>
+
+  <!-- Core feature boxes -->
+  <rect x="50" y="368" width="110" height="50" rx="6" fill="rgba(255,255,255,0.12)"/>
+  <text x="105" y="388" text-anchor="middle" fill="white" font-size="11" font-weight="600">Config</text>
+  <text x="105" y="403" text-anchor="middle" fill="#c7d2fe" font-size="9">Options Pattern</text>
+
+  <rect x="170" y="368" width="110" height="50" rx="6" fill="rgba(255,255,255,0.12)"/>
+  <text x="225" y="388" text-anchor="middle" fill="white" font-size="11" font-weight="600">RetryPolicy</text>
+  <text x="225" y="403" text-anchor="middle" fill="#c7d2fe" font-size="9">Backoff + Jitter</text>
+
+  <rect x="290" y="368" width="110" height="50" rx="6" fill="rgba(255,255,255,0.12)"/>
+  <text x="345" y="388" text-anchor="middle" fill="white" font-size="11" font-weight="600">Errors</text>
+  <text x="345" y="403" text-anchor="middle" fill="#c7d2fe" font-size="9">40001 | CR000</text>
+
+  <rect x="410" y="368" width="110" height="50" rx="6" fill="rgba(255,255,255,0.12)"/>
+  <text x="465" y="388" text-anchor="middle" fill="white" font-size="11" font-weight="600">Region</text>
+  <text x="465" y="403" text-anchor="middle" fill="#c7d2fe" font-size="9">Multi-Region Ctx</text>
+
+  <rect x="530" y="368" width="110" height="50" rx="6" fill="rgba(255,255,255,0.12)"/>
+  <text x="585" y="388" text-anchor="middle" fill="white" font-size="11" font-weight="600">FollowerRead</text>
+  <text x="585" y="403" text-anchor="middle" fill="#c7d2fe" font-size="9">AS OF SYSTEM TIME</text>
+
+  <rect x="650" y="368" width="100" height="50" rx="6" fill="rgba(255,255,255,0.12)"/>
+  <text x="700" y="388" text-anchor="middle" fill="white" font-size="11" font-weight="600">Middleware</text>
+  <text x="700" y="403" text-anchor="middle" fill="#c7d2fe" font-size="9">Chain(a, b, c)</text>
+
+  <rect x="760" y="368" width="100" height="50" rx="6" fill="rgba(255,255,255,0.12)"/>
+  <text x="810" y="388" text-anchor="middle" fill="white" font-size="11" font-weight="600">Health</text>
+  <text x="810" y="403" text-anchor="middle" fill="#c7d2fe" font-size="9">HTTP Handler</text>
+
+  <!-- SUPPORT PACKAGES ROW -->
+  <text x="44" y="455" fill="#94a3b8" font-size="11" font-weight="600" letter-spacing="1.5">SUPPORT</text>
+
+  <!-- Metrics -->
+  <rect x="30" y="462" width="270" height="70" rx="8" fill="url(#metricsGrad)" filter="url(#shadow)"/>
+  <text x="165" y="488" text-anchor="middle" fill="white" font-size="14" font-weight="700">metrics</text>
+  <text x="165" y="505" text-anchor="middle" fill="#d1fae5" font-size="10">InMemoryRecorder | Snapshot</text>
+  <text x="165" y="519" text-anchor="middle" fill="#d1fae5" font-size="10">sync/atomic | Thread-safe counters</text>
+
+  <!-- crdbtest -->
+  <rect x="315" y="462" width="270" height="70" rx="8" fill="url(#testGrad)" filter="url(#shadow)"/>
+  <text x="450" y="488" text-anchor="middle" fill="white" font-size="14" font-weight="700">crdbtest</text>
+  <text x="450" y="505" text-anchor="middle" fill="#fef3c7" font-size="10">Harness | ConcurrencyRunner</text>
+  <text x="450" y="519" text-anchor="middle" fill="#fef3c7" font-size="10">RetrySimulator | FollowerReadSimulator</text>
+
+  <!-- CDC + Circuit Breaker -->
+  <rect x="600" y="462" width="270" height="70" rx="8" fill="url(#adapterGrad)" filter="url(#shadow)"/>
+  <text x="735" y="488" text-anchor="middle" fill="white" font-size="14" font-weight="700">cdc + circuitbreaker</text>
+  <text x="735" y="505" text-anchor="middle" fill="#cffafe" font-size="10">Changefeed | Webhooks | Manager</text>
+  <text x="735" y="519" text-anchor="middle" fill="#cffafe" font-size="10">Circuit Breaker | State Callbacks</text>
+
+  <!-- Arrow down from core to CockroachDB -->
+  <line x1="450" y1="432" x2="450" y2="462" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrowDown)"/>
+
+  <!-- CockroachDB -->
+  <rect x="200" y="555" width="500" height="50" rx="10" fill="url(#dbGrad)" filter="url(#shadow)"/>
+  <text x="450" y="580" text-anchor="middle" fill="white" font-size="15" font-weight="700">CockroachDB</text>
+  <text x="450" y="596" text-anchor="middle" fill="#dcfce7" font-size="10">Serializable | Multi-Region | Follower Reads | Native VECTOR (C-SPANN)</text>
+
+  <!-- Arrows from support to DB -->
+  <line x1="165" y1="532" x2="350" y2="555" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="450" y1="532" x2="450" y2="555" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrowDown)"/>
+  <line x1="735" y1="532" x2="550" y2="555" stroke="#94a3b8" stroke-width="1.5"/>
+
+  <!-- Legend -->
+  <rect x="30" y="545" width="12" height="12" rx="3" fill="url(#adapterGrad)"/>
+  <text x="48" y="555" fill="#94a3b8" font-size="10">Adapters</text>
+  <rect x="110" y="545" width="12" height="12" rx="3" fill="url(#coreGrad)"/>
+  <text x="128" y="555" fill="#94a3b8" font-size="10">Core</text>
+  <rect x="165" y="545" width="12" height="12" rx="3" fill="url(#aiGrad)"/>
+  <text x="183" y="555" fill="#94a3b8" font-size="10">AI</text>
+</svg>

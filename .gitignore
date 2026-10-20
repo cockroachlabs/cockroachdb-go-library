@@ -1,0 +1,65 @@
+# Go build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Go workspace
+go.work
+go.work.sum
+
+# Go module vendor (uncomment if not vendoring)
+# vendor/
+
+# Coverage
+*.coverprofile
+coverage.out
+coverage.html
+
+# Build output
+/bin/
+/dist/
+/demo
+
+# IDE
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+*.iml
+
+# dotenv
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+._*
+Thumbs.db
+ehthumbs.db
+[Dd]esktop.ini
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Debug
+__debug_bin*
+debug.test
+
+# Profiling
+*.prof
+*.pprof
+*.trace
+
+# Project-local AI/session state
+.local/
+CONTEXT.md
+sibling-analysis.md

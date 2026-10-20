@@ -1,0 +1,24 @@
+services:
+  roach-0:
+    image: cockroachdb/cockroach:latest-v24.3
+    command: start-single-node --insecure --advertise-addr=roach-0
+    ports:
+      - "26257:26257"
+      - "8080:8080"
+    volumes:
+      - roach-0-data:/cockroach/cockroach-data
+    restart: on-failure
+    healthcheck:
+      test: ["CMD", "cockroach", "node", "status", "--insecure", "--host=roach-0"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - crdb-net
+
+volumes:
+  roach-0-data:
+
+networks:
+  crdb-net:
+    driver: bridge

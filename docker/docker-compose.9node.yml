@@ -1,0 +1,102 @@
+x-crdb-node: &crdb-node
+  image: cockroachdb/cockroach:latest-v24.3
+  restart: on-failure
+  networks:
+    - crdb-net
+  healthcheck:
+    test: ["CMD", "cockroach", "node", "status", "--insecure"]
+    interval: 5s
+    timeout: 10s
+    retries: 15
+
+x-join: &join-list
+  --join=roach-0,roach-1,roach-2,roach-3,roach-4,roach-5,roach-6,roach-7,roach-8
+
+services:
+  # Region: us-east1 (nodes 0-2)
+  roach-0:
+    <<: *crdb-node
+    command: start --insecure --advertise-addr=roach-0 --locality=region=us-east1,zone=us-east1-a --join=roach-0,roach-1,roach-2,roach-3,roach-4,roach-5,roach-6,roach-7,roach-8
+    ports:
+      - "26257:26257"
+      - "8080:8080"
+    volumes:
+      - roach-0-data:/cockroach/cockroach-data
+
+  roach-1:
+    <<: *crdb-node
+    command: start --insecure --advertise-addr=roach-1 --locality=region=us-east1,zone=us-east1-b --join=roach-0,roach-1,roach-2,roach-3,roach-4,roach-5,roach-6,roach-7,roach-8
+    volumes:
+      - roach-1-data:/cockroach/cockroach-data
+
+  roach-2:
+    <<: *crdb-node
+    command: start --insecure --advertise-addr=roach-2 --locality=region=us-east1,zone=us-east1-c --join=roach-0,roach-1,roach-2,roach-3,roach-4,roach-5,roach-6,roach-7,roach-8
+    volumes:
+      - roach-2-data:/cockroach/cockroach-data
+
+  # Region: us-west1 (nodes 3-5)
+  roach-3:
+    <<: *crdb-node
+    command: start --insecure --advertise-addr=roach-3 --locality=region=us-west1,zone=us-west1-a --join=roach-0,roach-1,roach-2,roach-3,roach-4,roach-5,roach-6,roach-7,roach-8
+    volumes:
+      - roach-3-data:/cockroach/cockroach-data
+
+  roach-4:
+    <<: *crdb-node
+    command: start --insecure --advertise-addr=roach-4 --locality=region=us-west1,zone=us-west1-b --join=roach-0,roach-1,roach-2,roach-3,roach-4,roach-5,roach-6,roach-7,roach-8
+    volumes:
+      - roach-4-data:/cockroach/cockroach-data
+
+  roach-5:
+    <<: *crdb-node
+    command: start --insecure --advertise-addr=roach-5 --locality=region=us-west1,zone=us-west1-c --join=roach-0,roach-1,roach-2,roach-3,roach-4,roach-5,roach-6,roach-7,roach-8
+    volumes:
+      - roach-5-data:/cockroach/cockroach-data
+
+  # Region: eu-west1 (nodes 6-8)
+  roach-6:
+    <<: *crdb-node
+    command: start --insecure --advertise-addr=roach-6 --locality=region=eu-west1,zone=eu-west1-a --join=roach-0,roach-1,roach-2,roach-3,roach-4,roach-5,roach-6,roach-7,roach-8
+    volumes:
+      - roach-6-data:/cockroach/cockroach-data
+
+  roach-7:
+    <<: *crdb-node
+    command: start --insecure --advertise-addr=roach-7 --locality=region=eu-west1,zone=eu-west1-b --join=roach-0,roach-1,roach-2,roach-3,roach-4,roach-5,roach-6,roach-7,roach-8
+    volumes:
+      - roach-7-data:/cockroach/cockroach-data
+
+  roach-8:
+    <<: *crdb-node
+    command: start --insecure --advertise-addr=roach-8 --locality=region=eu-west1,zone=eu-west1-c --join=roach-0,roach-1,roach-2,roach-3,roach-4,roach-5,roach-6,roach-7,roach-8
+    volumes:
+      - roach-8-data:/cockroach/cockroach-data
+
+  roach-init:
+    image: cockroachdb/cockroach:latest-v24.3
+    command: init --insecure --host=roach-0
+    depends_on:
+      roach-0:
+        condition: service_healthy
+      roach-1:
+        condition: service_healthy
+      roach-2:
+        condition: service_healthy
+    networks:
+      - crdb-net
+
+volumes:
+  roach-0-data:
+  roach-1-data:
+  roach-2-data:
+  roach-3-data:
+  roach-4-data:
+  roach-5-data:
+  roach-6-data:
+  roach-7-data:
+  roach-8-data:
+
+networks:
+  crdb-net:
+    driver: bridge

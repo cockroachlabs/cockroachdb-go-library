@@ -1,0 +1,57 @@
+x-crdb-node: &crdb-node
+  image: cockroachdb/cockroach:latest-v24.3
+  restart: on-failure
+  networks:
+    - crdb-net
+  healthcheck:
+    test: ["CMD-SHELL", "grep -q 'node starting' /cockroach/cockroach-data/logs/cockroach.log 2>/dev/null || exit 1"]
+    interval: 3s
+    timeout: 5s
+    retries: 20
+    start_period: 5s
+
+services:
+  roach-0:
+    <<: *crdb-node
+    command: start --insecure --advertise-addr=roach-0 --join=roach-0,roach-1,roach-2
+    ports:
+      - "26257:26257"
+      - "8080:8080"
+    volumes:
+      - roach-0-data:/cockroach/cockroach-data
+
+  roach-1:
+    <<: *crdb-node
+    command: start --insecure --advertise-addr=roach-1 --join=roach-0,roach-1,roach-2
+    volumes:
+      - roach-1-data:/cockroach/cockroach-data
+
+  roach-2:
+    <<: *crdb-node
+    command: start --insecure --advertise-addr=roach-2 --join=roach-0,roach-1,roach-2
+    volumes:
+      - roach-2-data:/cockroach/cockroach-data
+
+  roach-init:
+    image: cockroachdb/cockroach:latest-v24.3
+    command: >
+      bash -c "sleep 10 && cockroach init --insecure --host=roach-0 2>/dev/null || true"
+    depends_on:
+      roach-0:
+        condition: service_started
+      roach-1:
+        condition: service_started
+      roach-2:
+        condition: service_started
+    networks:
+      - crdb-net
+    restart: "no"
+
+volumes:
+  roach-0-data:
+  roach-1-data:
+  roach-2-data:
+
+networks:
+  crdb-net:
+    driver: bridge
