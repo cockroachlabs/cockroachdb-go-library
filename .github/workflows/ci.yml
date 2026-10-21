@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Start CockroachDB
+        run: |
+          docker run -d --name crdb -p 26257:26257 \
+            cockroachdb/cockroach:latest-v25.1 start-single-node --insecure
+          for i in $(seq 1 60); do
+            if docker exec crdb ./cockroach sql --insecure -e 'SELECT 1' >/dev/null 2>&1; then
+              echo "CockroachDB ready"; break
+            fi
+            sleep 2
+          done
+
+      - name: Build & vet
+        run: |
+          go build ./...
+          go vet ./...
+
+      - name: Test
+        env:
+          CRDB_CONTINUUM_DSN: postgresql://root@localhost:26257/defaultdb?sslmode=disable
+          CRDB_URL: postgresql://root@localhost:26257/defaultdb?sslmode=disable
+          DATABASE_URL: postgresql://root@localhost:26257/defaultdb?sslmode=disable
+        run: go test -race ./...

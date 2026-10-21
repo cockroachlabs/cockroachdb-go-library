@@ -2,11 +2,11 @@
 
 A Go library providing CockroachDB-specific features: automatic transaction retries, multi-region routing, follower reads, CDC, circuit breaker, AI/vector search, and composable middleware.
 
-<!-- Badges (uncomment when CI is configured)
+[![CI](https://github.com/cockroachlabs/cockroachdb-go-library/actions/workflows/ci.yml/badge.svg)](https://github.com/cockroachlabs/cockroachdb-go-library/actions/workflows/ci.yml)
 [![Go Reference](https://pkg.go.dev/badge/github.com/cockroachlabs/cockroachdb-go-library.svg)](https://pkg.go.dev/github.com/cockroachlabs/cockroachdb-go-library)
-[![Build Status](https://github.com/cockroachlabs/cockroachdb-go-library/actions/workflows/ci.yml/badge.svg)](https://github.com/cockroachlabs/cockroachdb-go-library/actions)
 [![Go Report Card](https://goreportcard.com/badge/github.com/cockroachlabs/cockroachdb-go-library)](https://goreportcard.com/report/github.com/cockroachlabs/cockroachdb-go-library)
--->
+[![Release](https://img.shields.io/github/v/release/cockroachlabs/cockroachdb-go-library?sort=semver)](https://github.com/cockroachlabs/cockroachdb-go-library/releases)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 
 ## Overview
 
