@@ -37,8 +37,10 @@ The library follows a **core + adapter** pattern:
 ## Installation
 
 ```bash
-go get github.com/cockroachlabs/cockroachdb-go-library
+go get github.com/cockroachlabs/cockroachdb-go-library@v0.1.0
 ```
+
+API reference: https://pkg.go.dev/github.com/cockroachlabs/cockroachdb-go-library
 
 Requires **Go 1.22+** (uses `math/rand/v2`).
 
