@@ -8,9 +8,9 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo"
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo/pgxadapter"
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo/testutil"
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo"
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo/pgxadapter"
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo/testutil"
 	"github.com/jackc/pgx/v5"
 )
 

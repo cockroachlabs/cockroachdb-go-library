@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo/continuum/mcp"
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo/continuum/mcp"
 )
 
 // fakeMCP returns scripted CallResults by tool name and records calls.

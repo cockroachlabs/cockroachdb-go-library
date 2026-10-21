@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo"
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )

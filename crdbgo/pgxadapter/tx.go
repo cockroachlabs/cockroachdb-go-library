@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo/continuum/vcluster"
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo/continuum/vcluster"
 	"github.com/jackc/pgx/v5"
 )
 

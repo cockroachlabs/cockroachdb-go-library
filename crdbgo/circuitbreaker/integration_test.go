@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo/circuitbreaker"
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo/testutil"
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo/circuitbreaker"
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo/testutil"
 )
 
 func TestIntegration_ExecuteWithRealDB(t *testing.T) {

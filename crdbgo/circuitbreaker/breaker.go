@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo"
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo"
 )
 
 // State represents the circuit breaker's current state.

@@ -18,7 +18,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo/continuum/plenum"
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo/continuum/plenum"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 

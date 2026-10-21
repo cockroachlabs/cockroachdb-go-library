@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo"
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo"
 )
 
 func TestPoolConfig_DefaultRetryPolicy(t *testing.T) {

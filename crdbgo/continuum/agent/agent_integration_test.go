@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo/continuum/agent"
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo/continuum/internal/ctest"
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo/continuum/agent"
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo/continuum/internal/ctest"
 )
 
 func TestOpsTools_HealthAndStorageSummary(t *testing.T) {

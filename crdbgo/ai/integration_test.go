@@ -7,8 +7,8 @@ import (
 	"math"
 	"testing"
 
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo/ai"
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo/testutil"
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo/ai"
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo/testutil"
 )
 
 // mockEmbedder returns fixed-dimension embeddings based on simple text hashing.

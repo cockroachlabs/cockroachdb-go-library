@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo/continuum/internal/ctest"
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo/continuum/plenum"
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo/continuum/internal/ctest"
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo/continuum/plenum"
 )
 
 func TestSummary_IncludesCreatedTable(t *testing.T) {

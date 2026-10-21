@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo"
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo"
 	"github.com/jmoiron/sqlx"
 
 	// Register pgx as the database/sql driver for CockroachDB.
