@@ -569,7 +569,7 @@ This library is part of a family of CockroachDB client libraries:
 | Language | Project | Status |
 |----------|---------|--------|
 | **Go** | `cockroachdb-go-library` (this project) | Phase 4 complete (247 unit + 25 integration tests) |
-| **Java** | [`cockroachdb-spring-boot-starter`](https://github.com/cockroachlabs/cockroachdb-spring-boot-starter) | v0.1.0-SNAPSHOT |
+| **Java** | [`cockroachdb-spring-boot-starter`](https://github.com/cockroachlabs/cockroachdb-spring-boot-starter) | v0.1.2 |
 | **.NET** | [`cockroachdb-dotnet-library`](https://github.com/cockroachlabs/cockroachdb-dotnet-library) | Phase 2 (67 tests) |
 
 ## Roadmap
