@@ -3,9 +3,9 @@
 A Go library providing CockroachDB-specific features: automatic transaction retries, multi-region routing, follower reads, CDC, circuit breaker, AI/vector search, and composable middleware.
 
 <!-- Badges (uncomment when CI is configured)
-[![Go Reference](https://pkg.go.dev/badge/github.com/felipeg48/cockroachdb-go-library.svg)](https://pkg.go.dev/github.com/felipeg48/cockroachdb-go-library)
-[![Build Status](https://github.com/felipeg48/cockroachdb-go-library/actions/workflows/ci.yml/badge.svg)](https://github.com/felipeg48/cockroachdb-go-library/actions)
-[![Go Report Card](https://goreportcard.com/badge/github.com/felipeg48/cockroachdb-go-library)](https://goreportcard.com/report/github.com/felipeg48/cockroachdb-go-library)
+[![Go Reference](https://pkg.go.dev/badge/github.com/cockroachlabs/cockroachdb-go-library.svg)](https://pkg.go.dev/github.com/cockroachlabs/cockroachdb-go-library)
+[![Build Status](https://github.com/cockroachlabs/cockroachdb-go-library/actions/workflows/ci.yml/badge.svg)](https://github.com/cockroachlabs/cockroachdb-go-library/actions)
+[![Go Report Card](https://goreportcard.com/badge/github.com/cockroachlabs/cockroachdb-go-library)](https://goreportcard.com/report/github.com/cockroachlabs/cockroachdb-go-library)
 -->
 
 ## Overview
@@ -14,7 +14,7 @@ A Go library providing CockroachDB-specific features: automatic transaction retr
 
 Core logic lives in the `crdbgo` package; driver-specific adapters (`pgxadapter`, `gormadapter`, `sqlxadapter`) bridge to your database layer. The `ai` package provides vector search, document storage, and RAG capabilities using CockroachDB's native VECTOR type. You only import the packages you need.
 
-This is the Go sibling of the [Java Spring Boot Starter](https://github.com/felipeg48/cockroachdb-spring-boot-starter) and the [.NET Library](https://github.com/felipeg48/cockroachdb-dotnet-library).
+This is the Go sibling of the [Java Spring Boot Starter](https://github.com/cockroachlabs/cockroachdb-spring-boot-starter) and the [.NET Library](https://github.com/cockroachlabs/cockroachdb-dotnet-library).
 
 ## Architecture
 
@@ -37,7 +37,7 @@ The library follows a **core + adapter** pattern:
 ## Installation
 
 ```bash
-go get github.com/felipeg48/cockroachdb-go-library
+go get github.com/cockroachlabs/cockroachdb-go-library
 ```
 
 Requires **Go 1.22+** (uses `math/rand/v2`).
@@ -54,9 +54,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo"
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo/metrics"
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo/pgxadapter"
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo"
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo/metrics"
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo/pgxadapter"
 )
 
 func main() {
@@ -396,7 +396,7 @@ The `ai` package provides vector search, document storage, and RAG (Retrieval-Au
 **Layer 1: VectorSearchTemplate** -- low-level SQL generation for full control:
 
 ```go
-import "github.com/felipeg48/cockroachdb-go-library/crdbgo/ai"
+import "github.com/cockroachlabs/cockroachdb-go-library/crdbgo/ai"
 
 db, _ := sql.Open("postgres", connStr)
 template := ai.NewVectorSearchTemplate(db)
@@ -493,7 +493,7 @@ if err := <-errCh; err != nil {
 Build CockroachDB-optimized DDL with inline indexes (~25x faster table creation):
 
 ```go
-import "github.com/felipeg48/cockroachdb-go-library/crdbgo/ddl"
+import "github.com/cockroachlabs/cockroachdb-go-library/crdbgo/ddl"
 
 sql := ddl.CreateTableWithIndexes("orders", []ddl.ColumnDef{
     {Name: "id", Type: "UUID", PrimaryKey: true, Default: "gen_random_uuid()"},
@@ -550,15 +550,15 @@ Delay progression (with jitter):    25-50ms → 50-100ms → 100-200ms → 200-4
 
 | Package | Import Path | Purpose |
 |---------|-------------|---------|
-| `crdbgo` | `github.com/felipeg48/cockroachdb-go-library/crdbgo` | Core: config, retry, errors, regions, follower reads, middleware, health |
-| `pgxadapter` | `github.com/felipeg48/cockroachdb-go-library/crdbgo/pgxadapter` | pgx/v5 adapter: pool, ExecuteTx, follower read queries |
-| `gormadapter` | `github.com/felipeg48/cockroachdb-go-library/crdbgo/gormadapter` | GORM plugin with retry callbacks, scopes, and error classification |
-| `sqlxadapter` | `github.com/felipeg48/cockroachdb-go-library/crdbgo/sqlxadapter` | sqlx wrapper with ExecuteTx, follower reads, health check |
-| `circuitbreaker` | `github.com/felipeg48/cockroachdb-go-library/crdbgo/circuitbreaker` | Three-state circuit breaker with middleware integration |
-| `cdc` | `github.com/felipeg48/cockroachdb-go-library/crdbgo/cdc` | CDC: changefeed SQL builder, webhook handler, manager |
-| `metrics` | `github.com/felipeg48/cockroachdb-go-library/crdbgo/metrics` | In-memory and OpenTelemetry metrics recorders |
-| `crdbtest` | `github.com/felipeg48/cockroachdb-go-library/crdbgo/crdbtest` | Testing: harness, concurrency runner, retry/follower simulators |
-| `ai` | `github.com/felipeg48/cockroachdb-go-library/crdbgo/ai` | AI: vector search, document store, RAG pipeline (CockroachDB native VECTOR) |
+| `crdbgo` | `github.com/cockroachlabs/cockroachdb-go-library/crdbgo` | Core: config, retry, errors, regions, follower reads, middleware, health |
+| `pgxadapter` | `github.com/cockroachlabs/cockroachdb-go-library/crdbgo/pgxadapter` | pgx/v5 adapter: pool, ExecuteTx, follower read queries |
+| `gormadapter` | `github.com/cockroachlabs/cockroachdb-go-library/crdbgo/gormadapter` | GORM plugin with retry callbacks, scopes, and error classification |
+| `sqlxadapter` | `github.com/cockroachlabs/cockroachdb-go-library/crdbgo/sqlxadapter` | sqlx wrapper with ExecuteTx, follower reads, health check |
+| `circuitbreaker` | `github.com/cockroachlabs/cockroachdb-go-library/crdbgo/circuitbreaker` | Three-state circuit breaker with middleware integration |
+| `cdc` | `github.com/cockroachlabs/cockroachdb-go-library/crdbgo/cdc` | CDC: changefeed SQL builder, webhook handler, manager |
+| `metrics` | `github.com/cockroachlabs/cockroachdb-go-library/crdbgo/metrics` | In-memory and OpenTelemetry metrics recorders |
+| `crdbtest` | `github.com/cockroachlabs/cockroachdb-go-library/crdbgo/crdbtest` | Testing: harness, concurrency runner, retry/follower simulators |
+| `ai` | `github.com/cockroachlabs/cockroachdb-go-library/crdbgo/ai` | AI: vector search, document store, RAG pipeline (CockroachDB native VECTOR) |
 
 ## Sibling Projects
 
@@ -567,8 +567,8 @@ This library is part of a family of CockroachDB client libraries:
 | Language | Project | Status |
 |----------|---------|--------|
 | **Go** | `cockroachdb-go-library` (this project) | Phase 4 complete (247 unit + 25 integration tests) |
-| **Java** | [`cockroachdb-spring-boot-starter`](https://github.com/felipeg48/cockroachdb-spring-boot-starter) | v0.1.0-SNAPSHOT |
-| **.NET** | [`cockroachdb-dotnet-library`](https://github.com/felipeg48/cockroachdb-dotnet-library) | Phase 2 (67 tests) |
+| **Java** | [`cockroachdb-spring-boot-starter`](https://github.com/cockroachlabs/cockroachdb-spring-boot-starter) | v0.1.0-SNAPSHOT |
+| **.NET** | [`cockroachdb-dotnet-library`](https://github.com/cockroachlabs/cockroachdb-dotnet-library) | Phase 2 (67 tests) |
 
 ## Roadmap
 
@@ -647,9 +647,9 @@ Optional surfaces for [Cockroach Continuum](https://www.cockroachlabs.com/docs/c
 
 ```go
 import (
-    "github.com/felipeg48/cockroachdb-go-library/crdbgo/continuum/cloud"
-    "github.com/felipeg48/cockroachdb-go-library/crdbgo/continuum/mcp"
-    "github.com/felipeg48/cockroachdb-go-library/crdbgo/continuum/aegis"
+    "github.com/cockroachlabs/cockroachdb-go-library/crdbgo/continuum/cloud"
+    "github.com/cockroachlabs/cockroachdb-go-library/crdbgo/continuum/mcp"
+    "github.com/cockroachlabs/cockroachdb-go-library/crdbgo/continuum/aegis"
 )
 
 // --- Cloud control plane (simulated until APIKey is set) ---

@@ -42,7 +42,7 @@ All 247 unit tests run without a live database. The `crdbtest` simulators mock r
 
 ```bash
 # Clone the repository
-git clone https://github.com/felipeg48/cockroachdb-go-library.git
+git clone https://github.com/cockroachlabs/cockroachdb-go-library.git
 cd cockroachdb-go-library
 
 # Download dependencies
@@ -124,17 +124,17 @@ The shared test container helper lives in `crdbgo/testutil/container.go` and pro
 ```bash
 mkdir myapp && cd myapp
 go mod init myapp
-go get github.com/felipeg48/cockroachdb-go-library
+go get github.com/cockroachlabs/cockroachdb-go-library
 ```
 
 ### Step 2: Import only what you need
 
 ```go
 import (
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo"            // Core types
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo/pgxadapter" // pgx adapter
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo/metrics"    // Metrics
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo/crdbtest"   // Testing (test files only)
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo"            // Core types
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo/pgxadapter" // pgx adapter
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo/metrics"    // Metrics
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo/crdbtest"   // Testing (test files only)
 )
 ```
 

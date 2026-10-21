@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo"
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo/metrics"
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo"
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo/metrics"
 	"gorm.io/gorm/clause"
 )
 

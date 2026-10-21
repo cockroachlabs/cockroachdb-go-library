@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo/continuum/mcp"
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo/continuum/mcp"
 )
 
 // ErrToolNotConfigured is returned when an Aegis-over-MCP operation is attempted

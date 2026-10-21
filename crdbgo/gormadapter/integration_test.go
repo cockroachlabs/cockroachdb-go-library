@@ -8,9 +8,9 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo"
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo/gormadapter"
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo/testutil"
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo"
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo/gormadapter"
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo/testutil"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"

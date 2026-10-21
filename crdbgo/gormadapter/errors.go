@@ -3,7 +3,7 @@ package gormadapter
 import (
 	"errors"
 
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo"
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo"
 )
 
 // IsRetryable reports whether a GORM error wraps a retryable CockroachDB error.

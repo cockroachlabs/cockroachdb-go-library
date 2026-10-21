@@ -8,8 +8,8 @@
 // Basic usage:
 //
 //	import (
-//	    "github.com/felipeg48/cockroachdb-go-library/crdbgo"
-//	    "github.com/felipeg48/cockroachdb-go-library/crdbgo/gormadapter"
+//	    "github.com/cockroachlabs/cockroachdb-go-library/crdbgo"
+//	    "github.com/cockroachlabs/cockroachdb-go-library/crdbgo/gormadapter"
 //	)
 //
 //	db, _ := gorm.Open(postgres.Open(dsn), &gorm.Config{})

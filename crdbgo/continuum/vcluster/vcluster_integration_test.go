@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo/continuum/internal/ctest"
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo/continuum/vcluster"
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo/pgxadapter"
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo/continuum/internal/ctest"
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo/continuum/vcluster"
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo/pgxadapter"
 	"github.com/jackc/pgx/v5"
 )
 

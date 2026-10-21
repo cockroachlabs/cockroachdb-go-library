@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo"
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo"
 )
 
 // Compile-time interface checks.

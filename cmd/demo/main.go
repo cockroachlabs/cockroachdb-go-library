@@ -11,11 +11,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo"
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo/cdc"
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo/circuitbreaker"
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo/metrics"
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo/pgxadapter"
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo"
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo/cdc"
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo/circuitbreaker"
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo/metrics"
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo/pgxadapter"
 	"github.com/jackc/pgx/v5"
 )
 

@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo/sqlxadapter"
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo/testutil"
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo/sqlxadapter"
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo/testutil"
 	"github.com/jmoiron/sqlx"
 )
 

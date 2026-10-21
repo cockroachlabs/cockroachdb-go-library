@@ -3,7 +3,7 @@ package pgxadapter
 import (
 	"context"
 
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo"
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 

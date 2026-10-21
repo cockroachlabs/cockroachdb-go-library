@@ -1,4 +1,4 @@
-module github.com/felipeg48/cockroachdb-go-library
+module github.com/cockroachlabs/cockroachdb-go-library
 
 go 1.26.3
 

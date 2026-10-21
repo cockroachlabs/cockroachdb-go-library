@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/felipeg48/cockroachdb-go-library/crdbgo/ddl"
+	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo/ddl"
 	"github.com/jackc/pgx/v5"
 )
 
