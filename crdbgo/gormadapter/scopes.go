@@ -32,8 +32,13 @@ func FollowerRead() func(*gorm.DB) *gorm.DB {
 //	db.Scopes(gormadapter.FollowerReadWithStaleness(10 * time.Second)).Find(&orders)
 func FollowerReadWithStaleness(staleness time.Duration) func(*gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
+		sql, err := crdbgo.FollowerReadWithStaleness(staleness)
+		if err != nil {
+			_ = db.AddError(err)
+			return db
+		}
 		return db.Clauses(AsOfSystemTimeClause{
-			SQL: crdbgo.FollowerReadWithStaleness(staleness),
+			SQL: sql,
 		})
 	}
 }

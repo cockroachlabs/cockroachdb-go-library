@@ -28,3 +28,34 @@ func (p *Pool) QueryRowFollowerRead(ctx context.Context, query string, args ...a
 	fullQuery := query + " " + crdbgo.FollowerReadTimestamp()
 	return p.pool.QueryRow(ctx, fullQuery, args...)
 }
+
+// QueryFollowerReadAs is like [Pool.QueryFollowerRead] but reads at a caller-
+// supplied staleness. A zero staleness uses follower_read_timestamp() (the
+// default); a negative staleness returns an error without issuing the query, so
+// an invalid value fails fast instead of silently reading current data.
+func (p *Pool) QueryFollowerReadAs(ctx context.Context, staleness time.Duration, query string, args ...any) (pgx.Rows, error) {
+	clause, err := crdbgo.FollowerReadClause(staleness)
+	if err != nil {
+		return nil, err
+	}
+	start := time.Now()
+	fullQuery := query + " " + clause
+	rows, err := p.pool.Query(ctx, fullQuery, args...)
+	if err == nil && p.metrics != nil {
+		p.metrics.RecordFollowerRead(time.Since(start))
+	}
+	return rows, err
+}
+
+// QueryRowFollowerReadAs is like [Pool.QueryRowFollowerRead] but reads at a
+// caller-supplied staleness. Unlike QueryRowFollowerRead it returns an error so
+// an invalid staleness fails fast at call time rather than deferring to Scan; a
+// zero staleness uses follower_read_timestamp().
+func (p *Pool) QueryRowFollowerReadAs(ctx context.Context, staleness time.Duration, query string, args ...any) (pgx.Row, error) {
+	clause, err := crdbgo.FollowerReadClause(staleness)
+	if err != nil {
+		return nil, err
+	}
+	fullQuery := query + " " + clause
+	return p.pool.QueryRow(ctx, fullQuery, args...), nil
+}
