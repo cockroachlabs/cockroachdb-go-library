@@ -219,5 +219,69 @@ func (d *DB) SelectFollowerRead(ctx context.Context, dest any, query string, arg
 	return err
 }
 
+// QueryFollowerReadAs is like [DB.QueryFollowerRead] but reads at a caller-
+// supplied staleness. A zero staleness uses follower_read_timestamp() (the
+// default); a negative staleness returns an error without issuing the query.
+func (d *DB) QueryFollowerReadAs(ctx context.Context, staleness time.Duration, query string, args ...any) (*sqlx.Rows, error) {
+	clause, err := crdbgo.FollowerReadClause(staleness)
+	if err != nil {
+		return nil, err
+	}
+	start := time.Now()
+	fullQuery := fmt.Sprintf("%s %s", query, clause)
+	rows, err := d.db.QueryxContext(ctx, fullQuery, args...)
+	if err == nil && d.metrics != nil {
+		d.metrics.RecordFollowerRead(time.Since(start))
+	}
+	return rows, err
+}
+
+// QueryRowFollowerReadAs is like [DB.QueryRowFollowerRead] but reads at a caller-
+// supplied staleness. Unlike QueryRowFollowerRead it returns an error so an
+// invalid staleness fails fast at call time rather than deferring to Scan; a
+// zero staleness uses follower_read_timestamp().
+func (d *DB) QueryRowFollowerReadAs(ctx context.Context, staleness time.Duration, query string, args ...any) (*sqlx.Row, error) {
+	clause, err := crdbgo.FollowerReadClause(staleness)
+	if err != nil {
+		return nil, err
+	}
+	fullQuery := fmt.Sprintf("%s %s", query, clause)
+	return d.db.QueryRowxContext(ctx, fullQuery, args...), nil
+}
+
+// GetFollowerReadAs is like [DB.GetFollowerRead] but reads at a caller-supplied
+// staleness. A zero staleness uses follower_read_timestamp() (the default); a
+// negative staleness returns an error without issuing the query.
+func (d *DB) GetFollowerReadAs(ctx context.Context, staleness time.Duration, dest any, query string, args ...any) error {
+	clause, err := crdbgo.FollowerReadClause(staleness)
+	if err != nil {
+		return err
+	}
+	start := time.Now()
+	fullQuery := fmt.Sprintf("%s %s", query, clause)
+	err = d.db.GetContext(ctx, dest, fullQuery, args...)
+	if err == nil && d.metrics != nil {
+		d.metrics.RecordFollowerRead(time.Since(start))
+	}
+	return err
+}
+
+// SelectFollowerReadAs is like [DB.SelectFollowerRead] but reads at a caller-
+// supplied staleness. A zero staleness uses follower_read_timestamp() (the
+// default); a negative staleness returns an error without issuing the query.
+func (d *DB) SelectFollowerReadAs(ctx context.Context, staleness time.Duration, dest any, query string, args ...any) error {
+	clause, err := crdbgo.FollowerReadClause(staleness)
+	if err != nil {
+		return err
+	}
+	start := time.Now()
+	fullQuery := fmt.Sprintf("%s %s", query, clause)
+	err = d.db.SelectContext(ctx, dest, fullQuery, args...)
+	if err == nil && d.metrics != nil {
+		d.metrics.RecordFollowerRead(time.Since(start))
+	}
+	return err
+}
+
 // compile-time interface check
 var _ crdbgo.HealthChecker = (*DB)(nil)

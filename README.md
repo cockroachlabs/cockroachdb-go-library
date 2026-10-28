@@ -200,23 +200,62 @@ region, err := resolver.Resolve(ctx) // Returns first successful resolution
 
 ### 3. Follower Reads
 
-Reduce read latency by routing queries to the nearest replica using CockroachDB's `AS OF SYSTEM TIME` clause. Three modes are supported:
+Reduce read latency by routing queries to the nearest replica using CockroachDB's `AS OF SYSTEM TIME` clause. A follower read always reads from the past -- it never silently falls back to a current read.
 
 ```go
-// Mode 1: Let CockroachDB pick optimal staleness (recommended)
+// Let CockroachDB pick the optimal staleness (recommended).
 rows, err := pool.QueryFollowerRead(ctx, "SELECT * FROM products WHERE category = $1", "electronics")
 
-// Mode 2: Specific staleness interval
-clause := crdbgo.FollowerReadWithStaleness(10 * time.Second)
-// "AS OF SYSTEM TIME '-10s'"
+// Read at a caller-supplied staleness (parity across adapters).
+// A zero duration uses follower_read_timestamp(); a negative duration
+// returns an error WITHOUT issuing the query.
+rows, err = pool.QueryFollowerReadAs(ctx, 10*time.Second, "SELECT * FROM products WHERE category = $1", "electronics")
 
-// Mode 3: Exact timestamp
-clause := crdbgo.AsOfSystemTime(time.Now().Add(-30 * time.Second))
-// "AS OF SYSTEM TIME '2024-06-15T12:29:30Z'"
-
-// Single-row follower read
+// Single-row variants.
 row := pool.QueryRowFollowerRead(ctx, "SELECT name FROM products WHERE id = $1", 42)
+
+// QueryRowFollowerReadAs returns an error so an invalid staleness fails at
+// call time instead of deferring to Scan.
+row, err = pool.QueryRowFollowerReadAs(ctx, 10*time.Second, "SELECT name FROM products WHERE id = $1", 42)
 ```
+
+#### Building the clause directly
+
+`crdbgo.FollowerReadClause` is the single gate every adapter `...As` method routes through. Use it when you build SQL yourself:
+
+```go
+clause, err := crdbgo.FollowerReadClause(staleness)
+// staleness == 0 -> "AS OF SYSTEM TIME follower_read_timestamp()", nil   (default)
+// staleness  > 0 -> "AS OF SYSTEM TIME '-10s'", nil
+// staleness  < 0 -> "", error   (never a current read)
+if err != nil {
+	return err
+}
+query := "SELECT * FROM products " + clause
+
+// FollowerReadTimestamp is the no-argument default clause.
+crdbgo.FollowerReadTimestamp() // "AS OF SYSTEM TIME follower_read_timestamp()"
+
+// AsOfSystemTime pins an exact historical timestamp.
+crdbgo.AsOfSystemTime(time.Now().Add(-30 * time.Second)) // "AS OF SYSTEM TIME '2024-06-15T12:29:30Z'"
+```
+
+#### Misuse fails instead of reading current data
+
+A zero or negative staleness would emit SQL that reads current data (`'-0s'`) or is invalid (`'--10s'`), silently defeating the follower read. The library rejects it:
+
+- `crdbgo.FollowerReadWithStaleness(d)` -- **breaking change**: now returns `(string, error)` (was `string`) and errors when `d <= 0`. Use it when you explicitly want a positive staleness; use `FollowerReadClause` when a zero value should fall back to the default.
+
+  ```go
+  clause, err := crdbgo.FollowerReadWithStaleness(10 * time.Second) // "AS OF SYSTEM TIME '-10s'", nil
+  _, err = crdbgo.FollowerReadWithStaleness(0)                       // "", error
+  _, err = crdbgo.FollowerReadWithStaleness(-10 * time.Second)       // "", error
+  ```
+
+- Adapter `...As` methods (pgx `QueryFollowerReadAs`/`QueryRowFollowerReadAs`; sqlx `QueryFollowerReadAs`/`QueryRowFollowerReadAs`/`GetFollowerReadAs`/`SelectFollowerReadAs`) return the error before issuing the query when staleness is negative.
+- The GORM scope `gormadapter.FollowerReadWithStaleness(d)` records the error on the `*gorm.DB` (via `AddError`) and injects no clause, so the chain fails rather than reading current data.
+
+A staleness more recent than `follower_read_timestamp()` (about 4.2s) still reads historical data, but the leaseholder serves it rather than the nearest replica. A staleness older than the table's garbage-collection window fails in CockroachDB.
 
 ### 4. Metrics
 
