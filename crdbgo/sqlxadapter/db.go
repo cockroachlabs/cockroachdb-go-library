@@ -176,8 +176,37 @@ func (d *DB) sqlIsolationLevel() sql.IsolationLevel {
 	}
 }
 
+// followerReadInTx runs fn inside a read-only transaction pinned to clause
+// (e.g. "AS OF SYSTEM TIME follower_read_timestamp()") via SET TRANSACTION,
+// which is correct for any query shape. Appending the clause to the query text
+// is a syntax error once the query has a WHERE/ORDER BY/LIMIT.
+func (d *DB) followerReadInTx(ctx context.Context, clause string, fn func(tx *sqlx.Tx) error) error {
+	start := time.Now()
+	tx, err := d.db.BeginTxx(ctx, &sql.TxOptions{ReadOnly: true})
+	if err != nil {
+		return err
+	}
+	defer func() { _ = tx.Rollback() }()
+	if _, err := tx.ExecContext(ctx, "SET TRANSACTION "+clause); err != nil {
+		return err
+	}
+	if err := fn(tx); err != nil {
+		return err
+	}
+	if d.metrics != nil {
+		d.metrics.RecordFollowerRead(time.Since(start))
+	}
+	return nil
+}
+
 // QueryFollowerRead executes a query as a CockroachDB follower read by appending
 // AS OF SYSTEM TIME follower_read_timestamp(). Returns [sqlx.Rows] for scanning.
+//
+// NOTE: because the clause is appended to the query text, this streaming variant
+// only supports a bare "SELECT ... FROM t" — a WHERE/ORDER BY/LIMIT produces a
+// syntax error. For those, use [DB.SelectFollowerRead]/[DB.GetFollowerRead]
+// (which pin AS OF SYSTEM TIME on the transaction and work for any query), or
+// the pgx adapter.
 func (d *DB) QueryFollowerRead(ctx context.Context, query string, args ...any) (*sqlx.Rows, error) {
 	start := time.Now()
 	fullQuery := fmt.Sprintf("%s %s", query, crdbgo.FollowerReadTimestamp())
@@ -198,25 +227,17 @@ func (d *DB) QueryRowFollowerRead(ctx context.Context, query string, args ...any
 // GetFollowerRead is like sqlx.Get but appends AS OF SYSTEM TIME
 // follower_read_timestamp() to route the read to the nearest replica.
 func (d *DB) GetFollowerRead(ctx context.Context, dest any, query string, args ...any) error {
-	start := time.Now()
-	fullQuery := fmt.Sprintf("%s %s", query, crdbgo.FollowerReadTimestamp())
-	err := d.db.GetContext(ctx, dest, fullQuery, args...)
-	if err == nil && d.metrics != nil {
-		d.metrics.RecordFollowerRead(time.Since(start))
-	}
-	return err
+	return d.followerReadInTx(ctx, crdbgo.FollowerReadTimestamp(), func(tx *sqlx.Tx) error {
+		return tx.GetContext(ctx, dest, query, args...)
+	})
 }
 
 // SelectFollowerRead is like sqlx.Select but appends AS OF SYSTEM TIME
 // follower_read_timestamp() to route the read to the nearest replica.
 func (d *DB) SelectFollowerRead(ctx context.Context, dest any, query string, args ...any) error {
-	start := time.Now()
-	fullQuery := fmt.Sprintf("%s %s", query, crdbgo.FollowerReadTimestamp())
-	err := d.db.SelectContext(ctx, dest, fullQuery, args...)
-	if err == nil && d.metrics != nil {
-		d.metrics.RecordFollowerRead(time.Since(start))
-	}
-	return err
+	return d.followerReadInTx(ctx, crdbgo.FollowerReadTimestamp(), func(tx *sqlx.Tx) error {
+		return tx.SelectContext(ctx, dest, query, args...)
+	})
 }
 
 // QueryFollowerReadAs is like [DB.QueryFollowerRead] but reads at a caller-
@@ -257,13 +278,9 @@ func (d *DB) GetFollowerReadAs(ctx context.Context, staleness time.Duration, des
 	if err != nil {
 		return err
 	}
-	start := time.Now()
-	fullQuery := fmt.Sprintf("%s %s", query, clause)
-	err = d.db.GetContext(ctx, dest, fullQuery, args...)
-	if err == nil && d.metrics != nil {
-		d.metrics.RecordFollowerRead(time.Since(start))
-	}
-	return err
+	return d.followerReadInTx(ctx, clause, func(tx *sqlx.Tx) error {
+		return tx.GetContext(ctx, dest, query, args...)
+	})
 }
 
 // SelectFollowerReadAs is like [DB.SelectFollowerRead] but reads at a caller-
@@ -274,13 +291,9 @@ func (d *DB) SelectFollowerReadAs(ctx context.Context, staleness time.Duration, 
 	if err != nil {
 		return err
 	}
-	start := time.Now()
-	fullQuery := fmt.Sprintf("%s %s", query, clause)
-	err = d.db.SelectContext(ctx, dest, fullQuery, args...)
-	if err == nil && d.metrics != nil {
-		d.metrics.RecordFollowerRead(time.Since(start))
-	}
-	return err
+	return d.followerReadInTx(ctx, clause, func(tx *sqlx.Tx) error {
+		return tx.SelectContext(ctx, dest, query, args...)
+	})
 }
 
 // compile-time interface check
