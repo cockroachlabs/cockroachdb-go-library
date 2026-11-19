@@ -1,0 +1,76 @@
+# 3-node insecure CockroachDB cluster for the Ideas Board multi-region IT.
+#
+# Each node declares a distinct --locality=region, so the cluster exposes three
+# regions (us-east1, us-west1, us-central1). The one-shot `crdb-init` service runs
+# `cockroach init` and then makes `defaultdb` multi-region, which is what
+# multiregion_it_test.go expects (it SKIPs unless the regions already exist).
+#
+# Only node1's SQL port is published to the host:
+#   CRDB_URL=postgres://root@localhost:26257/defaultdb?sslmode=disable
+#
+# Local use:
+#   docker compose -f multiregion-compose.yml up -d crdb-us-east1 crdb-us-west1 crdb-us-central1
+#   docker compose -f multiregion-compose.yml run --rm crdb-init
+#   CRDB_MULTIREGION=true CRDB_URL=postgres://root@localhost:26257/defaultdb?sslmode=disable \
+#     go test ./... -run Regional -v
+#
+# In-memory stores + capped caches keep three nodes light enough for a CI runner.
+# ponytail: single node per region (RF=3 across 3 nodes), not 3-per-region zone
+# survival — enough to prove region-homed writes; scale up only if survival goals
+# are what you're testing.
+
+name: crdb-multiregion-it
+
+x-crdb: &crdb
+  image: cockroachdb/cockroach:latest-v25.1
+  restart: "no"
+
+services:
+  crdb-us-east1:
+    <<: *crdb
+    hostname: crdb-us-east1
+    command: start --insecure --store=type=mem,size=512MiB --cache=256MiB --max-sql-memory=256MiB --advertise-addr=crdb-us-east1 --join=crdb-us-east1,crdb-us-west1,crdb-us-central1 --locality=region=us-east1
+    ports:
+      - "26257:26257"
+
+  crdb-us-west1:
+    <<: *crdb
+    hostname: crdb-us-west1
+    command: start --insecure --store=type=mem,size=512MiB --cache=256MiB --max-sql-memory=256MiB --advertise-addr=crdb-us-west1 --join=crdb-us-east1,crdb-us-west1,crdb-us-central1 --locality=region=us-west1
+
+  crdb-us-central1:
+    <<: *crdb
+    hostname: crdb-us-central1
+    command: start --insecure --store=type=mem,size=512MiB --cache=256MiB --max-sql-memory=256MiB --advertise-addr=crdb-us-central1 --join=crdb-us-east1,crdb-us-west1,crdb-us-central1 --locality=region=us-central1
+
+  # One-shot: initialize the cluster, then make defaultdb multi-region. The SQL
+  # retry loop also serves as the readiness gate — ADD REGION only succeeds once a
+  # live node advertises that region, so it naturally waits for all three to join.
+  crdb-init:
+    <<: *crdb
+    depends_on:
+      - crdb-us-east1
+      - crdb-us-west1
+      - crdb-us-central1
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - |
+        set -u
+        for i in $$(seq 1 60); do
+          cockroach init --insecure --host=crdb-us-east1 2>/tmp/init.err && break
+          grep -q "already been initialized" /tmp/init.err && break
+          echo "waiting for node1 to accept init ($$i)"; sleep 2
+        done
+        for i in $$(seq 1 60); do
+          if cockroach sql --insecure --host=crdb-us-east1 -e "
+            ALTER DATABASE defaultdb SET PRIMARY REGION 'us-east1';
+            ALTER DATABASE defaultdb ADD REGION IF NOT EXISTS 'us-west1';
+            ALTER DATABASE defaultdb ADD REGION IF NOT EXISTS 'us-central1';
+          "; then
+            echo "defaultdb is multi-region:"
+            cockroach sql --insecure --host=crdb-us-east1 -e "SHOW REGIONS FROM DATABASE defaultdb"
+            exit 0
+          fi
+          echo "waiting for all regions to join ($$i)"; sleep 3
+        done
+        echo "FAILED to configure multi-region defaultdb"; exit 1

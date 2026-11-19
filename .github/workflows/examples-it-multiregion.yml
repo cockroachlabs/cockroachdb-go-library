@@ -1,0 +1,56 @@
+name: examples-it-multiregion
+
+# Runs the Ideas Board multi-region integration test against a real 3-region
+# CockroachDB cluster brought up with docker-compose (one node each in us-east1,
+# us-west1, us-central1). This is the only way TestRegional_WritesHomeRowsInBoundRegion
+# actually executes: it SKIPs unless CRDB_MULTIREGION=true and CRDB_URL point at a
+# cluster whose database already has those regions added.
+#
+# Kept as a separate workflow from examples-it.yml so the single-node Testcontainers
+# job is untouched.
+on:
+  pull_request:
+    paths:
+      - 'examples/ideas-board/**'
+      - '.github/workflows/examples-it-multiregion.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'examples/ideas-board/**'
+      - '.github/workflows/examples-it-multiregion.yml'
+  workflow_dispatch:
+
+jobs:
+  ideas-board-multiregion-it:
+    name: Ideas Board multi-region IT (docker-compose cluster)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: examples/ideas-board/go.mod
+
+      - name: Start 3-region CockroachDB cluster
+        working-directory: examples/ideas-board
+        run: docker compose -f multiregion-compose.yml up -d crdb-us-east1 crdb-us-west1 crdb-us-central1
+
+      - name: Initialize cluster and configure regions
+        working-directory: examples/ideas-board
+        run: docker compose -f multiregion-compose.yml run --rm crdb-init
+
+      - name: Run multi-region integration test
+        working-directory: examples/ideas-board
+        env:
+          CRDB_MULTIREGION: "true"
+          CRDB_URL: "postgres://root@localhost:26257/defaultdb?sslmode=disable"
+        run: go test ./... -run Regional -v -timeout 10m
+
+      - name: Cluster logs on failure
+        if: failure()
+        working-directory: examples/ideas-board
+        run: docker compose -f multiregion-compose.yml logs --tail=200
+
+      - name: Tear down cluster
+        if: always()
+        working-directory: examples/ideas-board
+        run: docker compose -f multiregion-compose.yml down -v
