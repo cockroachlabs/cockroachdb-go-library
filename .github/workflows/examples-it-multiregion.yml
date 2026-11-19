@@ -24,6 +24,7 @@ jobs:
   ideas-board-multiregion-it:
     name: Ideas Board multi-region IT (docker-compose cluster)
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
@@ -36,7 +37,9 @@ jobs:
 
       - name: Initialize cluster and configure regions
         working-directory: examples/ideas-board
-        run: docker compose -f multiregion-compose.yml run --rm crdb-init
+        # Hard cap so a cluster that never reaches quorum fails the step (and runs
+        # the diagnostics below) instead of blocking the job.
+        run: timeout 420 docker compose -f multiregion-compose.yml run --rm crdb-init
 
       - name: Run multi-region integration test
         working-directory: examples/ideas-board
@@ -45,10 +48,12 @@ jobs:
           CRDB_URL: "postgres://root@localhost:26257/defaultdb?sslmode=disable"
         run: go test ./... -run Regional -v -timeout 10m
 
-      - name: Cluster logs on failure
+      - name: Cluster diagnostics on failure
         if: failure()
         working-directory: examples/ideas-board
-        run: docker compose -f multiregion-compose.yml logs --tail=200
+        run: |
+          docker compose -f multiregion-compose.yml ps
+          docker compose -f multiregion-compose.yml logs --tail=300
 
       - name: Tear down cluster
         if: always()
