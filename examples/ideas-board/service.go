@@ -64,16 +64,16 @@ func (s *Service) UpvoteWithoutRetry(ctx context.Context, id string) error {
 		_ = tx.Rollback(ctx)
 		return err
 	}
-	votes, err := currentVotes(ctx, tx, id) // <1>
+	votes, err := currentVotes(ctx, tx, id)
 	if err != nil {
 		_ = tx.Rollback(ctx)
 		return err
 	}
-	if err := updateVotes(ctx, tx, id, votes+1); err != nil { // <2>
+	if err := updateVotes(ctx, tx, id, votes+1); err != nil {
 		_ = tx.Rollback(ctx)
 		return err
 	}
-	return tx.Commit(ctx) // <3>
+	return tx.Commit(ctx)
 }
 
 // end::plain[]
@@ -84,7 +84,7 @@ func (s *Service) UpvoteWithoutRetry(ctx context.Context, id string) error {
 // retries the whole closure on SQLSTATE 40001 serialization conflicts. Every
 // concurrent vote eventually lands.
 func (s *Service) Upvote(ctx context.Context, id string) error {
-	return s.pool.ExecuteTx(ctx, func(tx pgx.Tx) error { // <1>
+	return s.pool.ExecuteTx(ctx, func(tx pgx.Tx) error {
 		return applyUpvote(ctx, txStore{ctx: ctx, tx: tx}, id)
 	})
 }
