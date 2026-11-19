@@ -14,7 +14,9 @@
 #   CRDB_MULTIREGION=true CRDB_URL=postgres://root@localhost:26257/defaultdb?sslmode=disable \
 #     go test ./... -run Regional -v
 #
-# In-memory stores + capped caches keep three nodes light enough for a CI runner.
+# Default on-disk stores (ephemeral in the container, wiped by `down -v`) + capped
+# caches keep three nodes light enough for a CI runner. (In-memory stores need
+# >640 MiB each on v25.1, so on-disk is both simpler and lighter here.)
 # Every SQL call sets a statement_timeout and a connect timeout so a cluster that
 # never reaches quorum FAILS the init (with node status dumped) instead of hanging.
 # ponytail: single node per region (RF=3 across 3 nodes), not 3-per-region zone
@@ -31,19 +33,19 @@ services:
   crdb-us-east1:
     <<: *crdb
     hostname: crdb-us-east1
-    command: start --insecure --store=type=mem,size=512MiB --cache=256MiB --max-sql-memory=256MiB --advertise-addr=crdb-us-east1 --join=crdb-us-east1,crdb-us-west1,crdb-us-central1 --locality=region=us-east1
+    command: start --insecure --cache=256MiB --max-sql-memory=256MiB --advertise-addr=crdb-us-east1 --join=crdb-us-east1,crdb-us-west1,crdb-us-central1 --locality=region=us-east1
     ports:
       - "26257:26257"
 
   crdb-us-west1:
     <<: *crdb
     hostname: crdb-us-west1
-    command: start --insecure --store=type=mem,size=512MiB --cache=256MiB --max-sql-memory=256MiB --advertise-addr=crdb-us-west1 --join=crdb-us-east1,crdb-us-west1,crdb-us-central1 --locality=region=us-west1
+    command: start --insecure --cache=256MiB --max-sql-memory=256MiB --advertise-addr=crdb-us-west1 --join=crdb-us-east1,crdb-us-west1,crdb-us-central1 --locality=region=us-west1
 
   crdb-us-central1:
     <<: *crdb
     hostname: crdb-us-central1
-    command: start --insecure --store=type=mem,size=512MiB --cache=256MiB --max-sql-memory=256MiB --advertise-addr=crdb-us-central1 --join=crdb-us-east1,crdb-us-west1,crdb-us-central1 --locality=region=us-central1
+    command: start --insecure --cache=256MiB --max-sql-memory=256MiB --advertise-addr=crdb-us-central1 --join=crdb-us-east1,crdb-us-west1,crdb-us-central1 --locality=region=us-central1
 
   # One-shot: initialize the cluster, wait for all three regions to join, then make
   # defaultdb multi-region. Every cockroach call is time-bounded (--connect-timeout
