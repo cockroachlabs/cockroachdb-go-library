@@ -17,8 +17,9 @@
 # Default on-disk stores (ephemeral in the container, wiped by `down -v`) + capped
 # caches keep three nodes light enough for a CI runner. (In-memory stores need
 # >640 MiB each on v25.1, so on-disk is both simpler and lighter here.)
-# Every SQL call sets a statement_timeout and a connect timeout so a cluster that
-# never reaches quorum FAILS the init (with node status dumped) instead of hanging.
+# Every SQL call sets a statement_timeout and every loop is iteration-bounded, so a
+# cluster that never reaches quorum FAILS the init (with node status dumped) instead
+# of hanging; the workflow also wraps this service in `timeout 420` as a backstop.
 # ponytail: single node per region (RF=3 across 3 nodes), not 3-per-region zone
 # survival — enough to prove region-homed writes; scale up only if survival goals
 # are what you're testing.
@@ -48,10 +49,9 @@ services:
     command: start --insecure --cache=256MiB --max-sql-memory=256MiB --advertise-addr=crdb-us-central1 --join=crdb-us-east1,crdb-us-west1,crdb-us-central1 --locality=region=us-central1
 
   # One-shot: initialize the cluster, wait for all three regions to join, then make
-  # defaultdb multi-region. Every cockroach call is time-bounded (--connect-timeout
-  # + SET statement_timeout) and every loop is iteration-bounded, so this service
-  # always terminates: exit 0 on success, exit 1 (after dumping node status) if the
-  # cluster never becomes a healthy 3-region cluster.
+  # defaultdb multi-region. Every SQL call sets a statement_timeout and every loop is
+  # iteration-bounded, so this service always terminates: exit 0 on success, exit 1
+  # (after dumping node status) if the cluster never becomes a healthy 3-region cluster.
   crdb-init:
     <<: *crdb
     depends_on:
@@ -71,7 +71,7 @@ services:
         done
         # 2) wait until all three region localities are visible cluster-wide.
         for i in $$(seq 1 40); do
-          count=$$(cockroach sql --insecure --host="$$host" --connect-timeout=5 --format=csv \
+          count=$$(cockroach sql --insecure --host="$$host" --format=csv \
             -e "SET statement_timeout='15s'; SELECT count(DISTINCT region) FROM [SHOW REGIONS FROM CLUSTER]" 2>/tmp/reg.err | tail -n1)
           echo "attempt $$i distinct_regions=$$count"
           [ "$$count" = "3" ] && { echo "all 3 regions present"; break; }
@@ -81,18 +81,18 @@ services:
         # 3) make defaultdb multi-region (idempotent). statement_timeout stops a
         #    schema change that cannot make progress from hanging the loop.
         for i in $$(seq 1 20); do
-          if cockroach sql --insecure --host="$$host" --connect-timeout=5 -e "
+          if cockroach sql --insecure --host="$$host" -e "
             SET statement_timeout='30s';
             ALTER DATABASE defaultdb SET PRIMARY REGION 'us-east1';
             ALTER DATABASE defaultdb ADD REGION IF NOT EXISTS 'us-west1';
             ALTER DATABASE defaultdb ADD REGION IF NOT EXISTS 'us-central1';
           "; then
             echo "defaultdb is multi-region:"
-            cockroach sql --insecure --host="$$host" --connect-timeout=5 -e "SHOW REGIONS FROM DATABASE defaultdb"
+            cockroach sql --insecure --host="$$host" -e "SHOW REGIONS FROM DATABASE defaultdb"
             exit 0
           fi
           echo "region config attempt $$i failed, retrying"; sleep 3
         done
         echo "FAILED to configure multi-region defaultdb; node status:"
-        cockroach node status --insecure --host="$$host" --connect-timeout=5 || true
+        cockroach node status --insecure --host="$$host" || true
         exit 1
