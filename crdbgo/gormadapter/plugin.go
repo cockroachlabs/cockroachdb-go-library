@@ -51,6 +51,11 @@ func (p *Plugin) Initialize(db *gorm.DB) error {
 	if err := cb.Create().Before("gorm:create").Register("crdbgo:before_create", p.beforeCallback); err != nil {
 		return err
 	}
+	// Region homing stamps crdb_region on INSERT. Registered on Create only so
+	// updates never silently relocate existing rows.
+	if err := cb.Create().Before("gorm:create").Register("crdbgo:home_region", p.homeRegionCallback); err != nil {
+		return err
+	}
 	if err := cb.Create().After("gorm:create").Register("crdbgo:after_create", p.afterCallback); err != nil {
 		return err
 	}
