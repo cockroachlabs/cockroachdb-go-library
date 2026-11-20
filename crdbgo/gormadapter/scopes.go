@@ -1,7 +1,6 @@
 package gormadapter
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/cockroachlabs/cockroachdb-go-library/crdbgo"
@@ -43,20 +42,19 @@ func FollowerReadWithStaleness(staleness time.Duration) func(*gorm.DB) *gorm.DB 
 	}
 }
 
-// InRegion returns a GORM scope that executes SET crdb_region before the query
-// to route it to a specific CockroachDB region.
+// InRegion returns a GORM scope that homes rows created in this session to the
+// named CockroachDB region by stamping the hidden crdb_region column on INSERT.
+//
+// It is a create-time routing hint for REGIONAL BY ROW tables: CockroachDB has
+// no crdb_region session variable, so the region is written as a column value
+// rather than applied with SET. The scope has no effect on plain reads.
 //
 // Usage:
 //
-//	db.Scopes(gormadapter.InRegion("us-west-2")).Find(&orders)
+//	db.Scopes(gormadapter.InRegion("us-west1")).Create(&order)
 func InRegion(region string) func(*gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		stmt := fmt.Sprintf("SET crdb_region = '%s'", region)
-		result := db.Session(&gorm.Session{NewDB: true}).Exec(stmt)
-		if result.Error != nil {
-			_ = db.AddError(result.Error)
-		}
-		return db
+		return db.Set(regionSettingKey, region)
 	}
 }
 

@@ -11,6 +11,10 @@ import (
 // retryContextKey is used to store retry state across before/after callbacks.
 type retryContextKey struct{}
 
+// regionSettingKey is the GORM instance-setting key that [InRegion] writes and
+// homeRegionCallback reads to home a created row's crdb_region column.
+const regionSettingKey = "crdbgo:region"
+
 // retryState tracks retry metadata for a single GORM operation.
 type retryState struct {
 	StartTime time.Time
@@ -35,17 +39,44 @@ func (p *Plugin) beforeCallback(db *gorm.DB) {
 		Attempt:   0,
 	}
 
-	// Inject region if configured at plugin level.
-	if p.config.Region != "" {
-		db.Exec("SET crdb_region = ?", p.config.Region)
-	}
-
-	// Check for region in context (overrides plugin-level).
-	if rc, ok := crdbgo.RegionFromContext(ctx); ok && rc.Region != "" {
-		db.Exec("SET crdb_region = ?", rc.Region)
-	}
-
 	db.Statement.Context = context.WithValue(ctx, retryContextKey{}, state)
+}
+
+// resolveRegion returns the region to home a created row in, preferring (in
+// order) the per-call [InRegion] setting, a RegionContext on the statement
+// context, then the plugin-level configured region. Returns "" when none apply.
+func (p *Plugin) resolveRegion(db *gorm.DB) string {
+	if v, ok := db.Get(regionSettingKey); ok {
+		if region, ok := v.(string); ok && region != "" {
+			return region
+		}
+	}
+	if db.Statement != nil {
+		if rc, ok := crdbgo.RegionFromContext(db.Statement.Context); ok && rc.Region != "" {
+			return rc.Region
+		}
+	}
+	return p.config.Region
+}
+
+// homeRegionCallback runs before gorm:create and homes the new row in the
+// resolved region by stamping the hidden crdb_region column. CockroachDB has no
+// crdb_region session variable, so a REGIONAL BY ROW row is homed by writing the
+// column, not with SET. It is a no-op when no region is resolved or the model
+// does not map a crdb_region column; it is registered on Create only, so updates
+// never silently relocate existing rows.
+func (p *Plugin) homeRegionCallback(db *gorm.DB) {
+	if db.Statement == nil || db.Statement.Schema == nil {
+		return
+	}
+	region := p.resolveRegion(db)
+	if region == "" {
+		return
+	}
+	if field := db.Statement.Schema.LookUpField("crdb_region"); field == nil {
+		return
+	}
+	db.Statement.SetColumn("crdb_region", region)
 }
 
 // afterCallback runs after each Create/Update/Delete and handles retry logic.
