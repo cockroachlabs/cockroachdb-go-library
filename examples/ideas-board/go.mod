@@ -3,7 +3,7 @@ module example/ideas-board
 go 1.26.3
 
 require (
-	github.com/cockroachlabs/cockroachdb-go-library v0.2.0
+	github.com/cockroachlabs/cockroachdb-go-library v0.2.2
 	github.com/jackc/pgx/v5 v5.11.0
 	github.com/testcontainers/testcontainers-go/modules/cockroachdb v0.44.0
 )
@@ -67,6 +67,6 @@ require (
 )
 
 // This example lives inside the library's working tree, so it builds against the
-// local checkout. Real consumers DELETE this replace and use v0.2.0 from the
+// local checkout. Real consumers DELETE this replace and use v0.2.2 from the
 // module proxy / git.
 replace github.com/cockroachlabs/cockroachdb-go-library => ../../
