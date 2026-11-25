@@ -37,7 +37,7 @@ The library follows a **core + adapter** pattern:
 ## Installation
 
 ```bash
-go get github.com/cockroachlabs/cockroachdb-go-library@v0.2.3
+go get github.com/cockroachlabs/cockroachdb-go-library@v0.2.4
 ```
 
 API reference: https://pkg.go.dev/github.com/cockroachlabs/cockroachdb-go-library
