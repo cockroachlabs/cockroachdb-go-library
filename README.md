@@ -37,12 +37,18 @@ The library follows a **core + adapter** pattern:
 ## Installation
 
 ```bash
-go get github.com/cockroachlabs/cockroachdb-go-library@v0.2.2
+go get github.com/cockroachlabs/cockroachdb-go-library@v0.2.3
 ```
 
 API reference: https://pkg.go.dev/github.com/cockroachlabs/cockroachdb-go-library
 
 Requires **Go 1.22+** (uses `math/rand/v2`).
+
+### AI agents
+
+Working in an app that uses this library? See [`docs/agents/AGENTS.md`](docs/agents/AGENTS.md) — a
+short consumer guide for coding agents (what the library already handles, which helper to reach for,
+anti-patterns to avoid). It ships with the module via `go get`, so it's on disk in your module cache.
 
 ## Quick Start
 
